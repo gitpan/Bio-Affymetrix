@@ -222,7 +222,7 @@ CHP documentation.
 	    
 	    <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$probesetlist</font>=<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"cdf"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#ff8204">probesets</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font>;
 	    
-	    <font color="#0000ff"><b>for</b></font> <font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$i</font>=0;<font color="#1f32ff">$i</font>&lt;<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"no_units"</font><font color="#0000ff"><b>}</b></font>;<font color="#1f32ff">$i</font>++<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
+	    <font color="#0000ff"><b>foreach</b></font> <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$i</font> <font color="#0000ff"><b>(</b></font><font color="#4169e1"><b>sort</b></font><font color="#0000ff"><b>(</b></font><font color="#4169e1"><b>keys</b></font><font color="#0000ff"><b>(</b></font>%$probesetlist<font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
 
 		<font color="#ff0000">## Non-comparison analysis</font><BR>
 		<font color="#4169e1"><b>read</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$fh</font>, <font color="#1f32ff">$buffer</font>, 44<font color="#0000ff"><b>)</b></font>;
@@ -245,7 +245,7 @@ CHP documentation.
 		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Signal"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$results</font><font color="#0000ff"><b>[</b></font>9<font color="#0000ff"><b>]</b></font>;
 		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"StatPairs"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$results</font><font color="#0000ff"><b>[</b></font>0<font color="#0000ff"><b>]</b></font>;
 		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"StatPairsUsed"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$results</font><font color="#0000ff"><b>[</b></font>1<font color="#0000ff"><b>]</b></font>;
-		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Probeset"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>;
+		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Probeset"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>}</b></font>;
 
 		<font color="#ff0000">## Blimey-o-reilly! There's an entire CEL file in here! Let's ditch that.</font><BR>		
 		<font color="#4169e1"><b>read</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$fh</font>, <font color="#1f32ff">$buffer</font>, <font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"StatPairs"</font><font color="#0000ff"><b>}</b></font>*52<font color="#0000ff"><b>)</b></font>; <font color="#ff0000">##52 bytes of junk per probeset?</font><BR>
@@ -264,9 +264,8 @@ CHP documentation.
 		    <font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Probeset"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>;
 		<font color="#0000ff"><b>}</b></font>
 		
-		<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font> or <font color="#4169e1"><b>die</b></font> <font color="#007400">"Suspect CDF file! We have more data in the CHP file than expected. Are you using the right CDF file?"</font>;
-		
-		<font color="#1f32ff">$data</font><font color="#0000ff"><b>{</b></font><font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>-&gt;<font color="#ff8204">name</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%h</font>;
+<font color="#ff0000">##		$probesetlist-&gt;[$i] or die &quot;Suspect CDF file! We have more data in the CHP file than expected. Are you using the right CDF file?&quot;;</font><BR>		
+		<font color="#1f32ff">$data</font><font color="#0000ff"><b>{</b></font><font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#ff8204">name</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%h</font>;
 		
 	    <font color="#0000ff"><b>}</b></font>
 	<font color="#0000ff"><b>}</b></font> <font color="#0000ff"><b>elsif</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"version"</font><font color="#0000ff"><b>}</b></font>==13<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
@@ -419,7 +418,7 @@ CHP documentation.
 
 	<font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$probesetlist</font>=<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"cdf"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#ff8204">probesets</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font>;
 
-	<font color="#0000ff"><b>for</b></font> <font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$i</font>=0;<font color="#1f32ff">$i</font>&lt;<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"no_units"</font><font color="#0000ff"><b>}</b></font>;<font color="#1f32ff">$i</font>++<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
+	<font color="#0000ff"><b>foreach</b></font> <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$i</font> <font color="#0000ff"><b>(</b></font><font color="#4169e1"><b>sort</b></font><font color="#0000ff"><b>(</b></font><font color="#4169e1"><b>keys</b></font><font color="#0000ff"><b>(</b></font>%$probesetlist<font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
 	    <font color="#4169e1"><b>read</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$fh</font>, <font color="#1f32ff">$buffer</font>, <font color="#1f32ff">$size</font><font color="#0000ff"><b>)</b></font>;
 	    
 	    <font color="#ff0000">## Non-comparison analysis</font><BR>	    
@@ -440,9 +439,9 @@ CHP documentation.
 		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"StatPairs"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$results</font><font color="#0000ff"><b>[</b></font>3<font color="#0000ff"><b>]</b></font>;
 		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"StatPairsUsed"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$results</font><font color="#0000ff"><b>[</b></font>4<font color="#0000ff"><b>]</b></font>;
 
-		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Probeset"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>;
+		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Probeset"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>}</b></font>;
 
-		<font color="#1f32ff">$data</font><font color="#0000ff"><b>{</b></font><font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>-&gt;<font color="#ff8204">name</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%h</font>;
+		<font color="#1f32ff">$data</font><font color="#0000ff"><b>{</b></font><font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#ff8204">name</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%h</font>;
 
 	    <font color="#0000ff"><b>}</b></font> <font color="#0000ff"><b>else</b></font> <font color="#0000ff"><b>{</b></font>
 		<font color="#ff0000">## Comparison analysis</font><BR>		<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"comparison"</font><font color="#0000ff"><b>}</b></font>=1;
@@ -470,7 +469,7 @@ CHP documentation.
 
 		<font color="#1f32ff">$h</font><font color="#0000ff"><b>{</b></font><font color="#007400">"Probeset"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>;
 
-		<font color="#1f32ff">$data</font><font color="#0000ff"><b>{</b></font><font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>]</b></font>-&gt;<font color="#ff8204">name</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%h</font>;
+		<font color="#1f32ff">$data</font><font color="#0000ff"><b>{</b></font><font color="#1f32ff">$probesetlist</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$i</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#ff8204">name</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%h</font>;
 	    <font color="#0000ff"><b>}</b></font>
 	<font color="#0000ff"><b>}</b></font>
 	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"probe_set_results"</font><font color="#0000ff"><b>}</b></font>=\<font color="#1f32ff">%data</font>;
@@ -685,10 +684,10 @@ CHP documentation.
 <TD><A HREF="#TOP">top</A></TD></TR><TR><TD COLSPAN="2"><pre>Writing CHP files as well as reading them.<BR></pre>
 </TD></TR>
 <TR BGCOLOR="#4492df"><TD><A NAME="_pod_COPYRIGHT"><B>COPYRIGHT</A></B></TD>
-<TD><A HREF="#TOP">top</A></TD></TR><TR><TD COLSPAN="2"><pre>This module is free software. You can copy or redistribute it under the same terms as Perl itself.<BR></pre>
+<TD><A HREF="#TOP">top</A></TD></TR><TR><TD COLSPAN="2"><pre>Copyright (C) 2005 by Nick James, David J Craigon, NASC (arabidopsis.info), The<BR>University of Nottingham<BR><BR>This module is free software. You can copy or redistribute it under the same terms as Perl itself. <BR><BR>Affymetrix is a registered trademark of Affymetrix Inc., Santa<BR>Clara, California, USA.<BR></pre>
 </TD></TR>
 <TR BGCOLOR="#4492df"><TD><A NAME="_pod_AUTHORS"><B>AUTHORS</A></B></TD>
-<TD><A HREF="#TOP">top</A></TD></TR><TR><TD COLSPAN="2"><pre>    <BR>Nick James (nick at arabidopsis.info)<BR><BR>David J Craigon (david at arabidopsis.info)<BR><BR>Nottingham Arabidopsis Stock Centre, University of Nottingham.<BR></pre>
+<TD><A HREF="#TOP">top</A></TD></TR><TR><TD COLSPAN="2"><pre>    <BR>Nick James (nick at arabidopsis.info)<BR><BR>David J Craigon (david at arabidopsis.info)<BR><BR>Nottingham Arabidopsis Stock Centre (<a href="http://arabidopsis.info" target="urlWin">http://arabidopsis.info</a>), University of Nottingham.<BR></pre>
 </TD></TR>
 </TABLE>
 </body>

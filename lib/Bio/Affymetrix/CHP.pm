@@ -103,7 +103,7 @@ Writing CHP files as well as reading them.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2004 by Nick James, David J Craigon, NASC (arabidopsis.info), The
+Copyright (C) 2005 by Nick James, David J Craigon, NASC (arabidopsis.info), The
 University of Nottingham
 
 This module is free software. You can copy or redistribute it under the same terms as Perl itself. 
@@ -126,7 +126,7 @@ Nottingham Arabidopsis Stock Centre (http://arabidopsis.info), University of Not
 
 use strict;
 
-our $VERSION=0.1;
+our $VERSION=0.2;
 
 # Module for processing CHP files
 
@@ -818,7 +818,7 @@ sub _parse_xda {
 
 	my $probesetlist=$self->{"cdf"}->probesets();
 
-	for (my $i=0;$i<$self->{"no_units"};$i++) {
+	foreach my $i (sort(keys(%$probesetlist))) {
 	    read ($fh, $buffer, $size);
 	    
 	    # Non-comparison analysis
@@ -840,9 +840,9 @@ sub _parse_xda {
 		$h{"StatPairs"}=$results[3];
 		$h{"StatPairsUsed"}=$results[4];
 
-		$h{"Probeset"}=$probesetlist->[$i];
+		$h{"Probeset"}=$probesetlist->{$i};
 
-		$data{$probesetlist->[$i]->name()}=\%h;
+		$data{$probesetlist->{$i}->name()}=\%h;
 
 	    } else {
 		# Comparison analysis
@@ -871,7 +871,7 @@ sub _parse_xda {
 
 		$h{"Probeset"}=$probesetlist->[$i];
 
-		$data{$probesetlist->[$i]->name()}=\%h;
+		$data{$probesetlist->{$i}->name()}=\%h;
 	    }
 	}
 	$self->{"probe_set_results"}=\%data;
@@ -968,7 +968,7 @@ sub _parse_mas5 {
 	    
 	    my $probesetlist=$self->{"cdf"}->probesets();
 	    
-	    for (my $i=0;$i<$self->{"no_units"};$i++) {
+	    foreach my $i (sort(keys(%$probesetlist))) {
 
 		# Non-comparison analysis
 
@@ -992,7 +992,7 @@ sub _parse_mas5 {
 		$h{"Signal"}=$results[9];
 		$h{"StatPairs"}=$results[0];
 		$h{"StatPairsUsed"}=$results[1];
-		$h{"Probeset"}=$probesetlist->[$i];
+		$h{"Probeset"}=$probesetlist->{$i};
 
 		# Blimey-o-reilly! There's an entire CEL file in here! Let's ditch that.
 		
@@ -1018,9 +1018,9 @@ sub _parse_mas5 {
 		    $h{"Probeset"}=$probesetlist->[$i];
 		}
 		
-		$probesetlist->[$i] or die "Suspect CDF file! We have more data in the CHP file than expected. Are you using the right CDF file?";
+#		$probesetlist->[$i] or die "Suspect CDF file! We have more data in the CHP file than expected. Are you using the right CDF file?";
 		
-		$data{$probesetlist->[$i]->name()}=\%h;
+		$data{$probesetlist->{$i}->name()}=\%h;
 		
 	    }
 	} elsif ($self->{"version"}==13) {

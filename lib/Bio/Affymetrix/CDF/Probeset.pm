@@ -8,9 +8,11 @@ package Bio::Affymetrix::CDF::Probeset;
 
 use Bio::Affymetrix::CDF::Probe;
 
+use Carp;
+
 use warnings;
 use strict;
-our $VERSION=0.1;
+our $VERSION=0.2;
 
 # Docs come before the code
 
@@ -28,29 +30,39 @@ my $cdf=new CDF();
 
 $cdf->parse_from_file("foo.cdf");
 
-# Print out all of the probeset names on this chip type
+# Print out the probeset name of Unit 1001
 
-my $probeset=$chp->probesets()->[0];
+my $probeset=$chp->probesets()->{1001};
 
-FINISH ME HERE
+print $probeset->name();
 
 =head1 DESCRIPTION
 
 The Affymetrix microarray system produces files in a variety of
 formats. If this means nothing to you, these modules are probably not
 for you :). After these modules have parsed a CDF file, the resulting
-Bio::Affymetrix::CDF file contains a list of
-Bio::Affmetrix::CDF::Probeset objects. This allows you look at the
+Bio::Affymetrix::CDF file contains a hash of
+Bio::Affmetrix::CDF::Probeset objects, keyed on the unit number. This allows you look at the
 details of the probeset.
+
+If you have parsed a CDF file with probe-level parsing turned on, you
+can examine the individual probes using the probes method. By altering
+the contents of this array, you can redesign the chip! NASC use this
+in our cross-species work (http://affymetrix.arabidopsis.info/xspecies).
 
 =head2 HINTS
 
 You can only get probe-level information if you have parsed the CDF
 object with probe-level parsing turned on.
 
+=head2 WARNING
+
+The probe level parsing interface is a bit inelegant at the
+moment. This might change in future versions.
+
 =head1 COPYRIGHT
 
-Copyright (C) 2004 by Nick James, David J Craigon, NASC (arabidopsis.info), The
+Copyright (C) 2005 by Nick James, David J Craigon, NASC (arabidopsis.info), The
 University of Nottingham
 
 This module is free software. You can copy or redistribute it under the same terms as Perl itself. 
@@ -77,7 +89,7 @@ Nottingham Arabidopsis Stock Centre (http://arabidopsis.info), University of Not
   Example    : my $cdf=new Bio::Affymetrix::CDF::Probeset();
   Description: constructor for Bio::Affymetrix::CDF::Probeset
 object. You probably do not want to make these objects yourself yet, however.
-  Returntype : new Bio::Affmetrix::CDF object
+  Returntype : new Bio::Affmetrix::CDF::Probeset object
   Exceptions : none
   Caller     : general
 
@@ -88,7 +100,7 @@ sub new {
     my $class=shift;
     my $q=shift;
     my $self={};
-    $self->{"probemode"}=0;
+    $self->{"PROBES"}=[];
 
     bless $self,$class;
 
@@ -106,7 +118,7 @@ sub new {
 =head2 unit_name
   Arg [1]    : 	string $unit_name (optional)
   Example    : 	my $unit_name=$ps->unit_name()
-  Description: 	Always NONE for expression arrays
+  Description: 	Always NONE for expression arrays. Only available in MAS5 files
   Returntype : string
   Exceptions : none
   Caller     : general
@@ -128,7 +140,7 @@ sub unit_name {
   Arg [1]    : 	boolean $sense (optional)
   Example    : 	if ($ps->is_sense()) { .... }
   Description: 	Returns true when this is a sense (rather than
-anti-sense) probeset
+anti-sense) probeset. Only available in MAS5 files
   Returntype : boolean
   Exceptions : none
   Caller     : general
@@ -181,7 +193,7 @@ sub original_num_probes {
 
 # arbitrary number for the probeset
 
-=head2 unit_number
+=head2 original_unit_number
   Arg [0]    : 	none
   Example    : 	my $probepairs=$ps->unit_number()
   Description: 	Get the unit number of this probeset (a unique number
@@ -191,9 +203,15 @@ assigned to each probe in the CDF file but otherwise meaningless)
   Caller     : general
 =cut
 
-sub unit_number {
+sub original_unit_number {
     my $self=shift;
     return $self->{"UNITNUMBER"};
+}
+
+sub unit_number {
+    my $self=shift;
+    carp "unit_number is deprecated. Use original_unit_number instead (same function only renamed)";
+    $self->original_unit_number(@_);
 }
 
 # type of unit as an ENUM like thing
@@ -234,14 +252,15 @@ sub original_number_blocks {
 }
 
 
-# 0= substitution 1= insertion 2=deleteion. No effort made here- we
+# 0= substitution 1= insertion 2=deletion. No effort made here- we
 # don't really do genotyping arrays
 
 =head2 mutation_type
   Arg [0]    : 	integer
   Example    : none
   Description: Get/set mutation_type. If this is a genotyping probe
-set, 0=substitution, 1=insertion, 2=deletion
+set, 0=substitution, 1=insertion, 2=deletion. Only available in MAS5
+  arrays using this software.
   Returntype : integer
   Exceptions : none
   Caller     : general
@@ -276,18 +295,28 @@ sub name {
     return $self->{"NAME"};
 }
 
-=head2 probes
+=head2 probe_pairs
   Arg [1]    : arrayref $probelist
-  Example    : my @probes=$ps->probes()
-  Description: Get/set list of probes making up this array. Only available if
-with probes mode is used.
-  Returntype : reference to array of Bio::Affymetrix::CDF::Probe objects
+  Example    : my @probes=$ps->probe_pairs()
+  Description: Get/set list of probe pairs making up this array. Only available if
+    with probes mode is used.
+
+    Returns an reference to an array of "probe pairs". Each "probe pair"
+    is an array reference containing two Bio::Affymetrix::CDF::Probe
+    objects.
+    
+    The design of the CDF file implies that one point chips with 3
+    mismatch probes and one perfect match probe were mooted, but we
+    are unsure whether any of these were ever released to the
+    public. Nevertheless, these modules are ready!
+
+  Returntype : reference to array of arrayrefs of Bio::Affymetrix::CDF::Probe objects
   Exceptions : none
   Caller     : general
 =cut
 
 
-sub probes {
+sub probe_pairs {
     my $self=shift;
     if (!$self->{"probemode"}) {
 	die "Probes is not available when not in probemode";
@@ -298,6 +327,14 @@ sub probes {
     }
     return $self->{"PROBES"};
 }
+
+sub probes {
+    my $self=shift;
+
+    carp ("probes deprecated. Use probe_pairs instead");
+    $self->probe_pairs(@_);
+}
+
 
 =head2 CDF
   Arg [1]    : Bio::Affymetrix::CDF object $probelist
@@ -326,6 +363,8 @@ sub CDF {
 sub _parse_from_filehandle {
     my $self=shift;
     my $fh=shift;
+
+    $self->{"probemode"}=shift;
 
     $self->{"FH"}=$fh;
 
@@ -361,10 +400,15 @@ sub _parse_from_filehandle {
 		$h->{"EXPOS"}=$s[5];
 		$h->{"POS"}=$s[6];
 		$h->{"PBASE"}=$s[8];
-		$h->{"ATOM"}=$s[9];
-		$h->{"INDEX"}=$s[10];
-		
-		push @{$self->{"PROBES"}},$h;
+		$h->{"TBASE"}=$s[9];
+		$h->{"ATOM"}=$s[10];
+		$h->{"INDEX"}=$s[11];
+		$h->{"PROBESET"}=$self;
+
+		if ($self->{"probemode"}) {
+		    push @{$self->{"PROBES"}->[$h->{"ATOM"}]},$h;
+		}
+
 	    } elsif (uc $name eq "NAME") {
 		$self->{"NAME"}=$value;
 	    }
@@ -373,5 +417,61 @@ sub _parse_from_filehandle {
 
     return $i;
 }
+
+# Parses from FileHandle for XDA format file
+
+
+sub _parse_from_filehandle_bin {
+    my $self=shift;
+    my $fh=shift;
+
+    $self->{"probemode"}=shift;
+
+    $self->{"FH"}=$fh;
+
+    # Handle trivia from unit header
+
+    my $buffer;
+
+    # General header information
+
+    (read ($fh, $buffer, 20)==20) or die "Can no longer read from file";
+
+    ($self->{"UNITTYPE"},$self->{"DIRECTION"},$self->{"NUMATOMS"},undef,$self->{"NUMCELLS"},$self->{"UNITNUMBER"},$self->{"ATOMSPERCELL"})=unpack ("SCV4C",$buffer);
+
+    # Block information- we assume one block only since we only do expression arrays
+
+    $self->{"NUMBERBLOCKS"}=1;
+
+    (read ($fh, $buffer, 82)==82) or die "Can no longer read from file";
+
+    {
+	my @temp=unpack ("V2C2V2Z64",$buffer);
+	$self->{"NAME"}=$temp[6];
+    }
+
+    $self->{"UNITNAME"}="NONE";
+
+    $self->{"PROBES"}=[];
+
+    for (my $i=1;$i<=$self->{"NUMCELLS"};$i++) {
+	(read ($fh, $buffer, 14)==14) or die "Can no longer read from file";
+	if ($self->{"probemode"}) {	
+	    my $h= new Bio::Affymetrix::CDF::Probe();
+	    
+	    ($h->{"ATOM"},$h->{"X"},$h->{"Y"},$h->{"POS"},$h->{"PBASE"},$h->{"TBASE"})=unpack("VS2VC2",$buffer);
+	    
+	    $h->{"INDEX"}=$i;
+	    
+	    $h->{"PBASE"}=uc(chr($h->{"PBASE"}));
+	    $h->{"TBASE"}=uc(chr($h->{"TBASE"}));
+	    $h->{"PROBESET"}=$self;
+	    
+	    push @{$self->{"PROBES"}->[$h->{"ATOM"}]},$h;
+	}
+    }
+
+}
+
 
 1;

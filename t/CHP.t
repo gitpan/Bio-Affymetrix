@@ -16,7 +16,7 @@ use constant TESTDATA=>"testdata/";
 
 BEGIN { use_ok('Bio::Affymetrix::CDF');use_ok('Bio::Affymetrix::CHP'); };
 
-my $cdf=new Bio::Affymetrix::CDF;
+my $cdf=new Bio::Affymetrix::CDF({"probemode"=>0});
 
 isa_ok($cdf,"Bio::Affymetrix::CDF");
 

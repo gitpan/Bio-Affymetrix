@@ -34,9 +34,13 @@ WEBSITE
 
 All NASC information can be found at http://arabidopsis.info
 
+LIMITATION
+
+The test script is not very comprehensive
+
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2004 by Nick James, David J Craigon, NASC (arabidopsis.info), The
+Copyright (C) 2005 by Nick James, David J Craigon, NASC (arabidopsis.info), The
 University of Nottingham
 
 This library is free software; you can redistribute it and/or modify
