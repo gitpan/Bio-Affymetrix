@@ -9,4 +9,6 @@ CDF writing from MAS5 CDF files now supported.
 Probeset/Probe interface changed. You can now edit the probes, and
 write to log.
 
+0.2.1:
+Bug fix- Bio::Affymetrix::CDF::Probe::is_mismatch() gives wrong (inverse) answers.
 

@@ -126,7 +126,7 @@ Nottingham Arabidopsis Stock Centre (http://arabidopsis.info), University of Not
 
 use strict;
 
-our $VERSION=0.2;
+our $VERSION=0.3;
 
 # Module for processing CHP files
 

@@ -73,7 +73,7 @@ use Carp;
 
 use warnings;
 use strict;
-our $VERSION=0.2;
+our $VERSION=0.3;
 
 =head2 new
 
@@ -252,7 +252,7 @@ print "Everybody loves mismatch probes!";
 =cut
 sub is_mismatch {
     my $self=shift;
-    return !($self->probe_target_base() eq $self->probe_mismatch_base());
+    return ($self->probe_target_base() eq $self->probe_mismatch_base());
 }
 
 =head2 original_probepair_number

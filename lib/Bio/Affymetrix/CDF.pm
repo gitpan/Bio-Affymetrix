@@ -107,7 +107,7 @@ package Bio::Affymetrix::CDF;
 use Carp;
 use warnings;
 use strict;
-our $VERSION=0.2;
+our $VERSION=0.3;
 
 use Bio::Affymetrix::CDF::Probeset;
 
@@ -506,8 +506,9 @@ sub _parse_mas5 {
 	    $i=$self->_parse_qc_section($i);
 	} elsif ($i=~/\[Unit\d+\]/) {
 	    $i=$self->_parse_unit_section($i);
+	} else {
+	    $i=$self->_next_line();
 	}
-	
     }
 }
 
