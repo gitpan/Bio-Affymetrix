@@ -73,7 +73,7 @@ use Carp;
 
 use warnings;
 use strict;
-our $VERSION=0.3;
+our $VERSION=0.4;
 
 =head2 new
 
@@ -108,7 +108,7 @@ sub new {
 =head2 x
     Arg [1]    :  integer $x (optional)
     Example    :  my $x=$probe->x();
- Description: 	Get/set the y coordinate of this probe
+ Description: 	Get the x coordinate of this probe. This is now (since version 0.3) immutable.
     Returntype : integer
     Exceptions : none
     Caller     : general
@@ -116,28 +116,19 @@ sub new {
 =cut
 sub x {
     my $self=shift;
-    
-    if (my $q=shift) {
-	$self->{"X"}=$q;
-    }
-    
     return $self->{"X"};
 }
 
 =head2 y
     Arg [1]    : 	integer $y (optional)
     Example    : 	my $name=$probe->cols()
-  Description: 	Get/set the y coordinate of this probe
+  Description: 	Get the y coordinate of this probe. This is now (since version 0.3) immutable.
     Returntype : integer
     Exceptions : none
     Caller     : general
 =cut
 sub y {
     my $self=shift;
-    
-    if (my $q=shift) {
-	$self->{"Y"}=$q;
-    }
     
     return $self->{"Y"};
 }

@@ -107,7 +107,9 @@ package Bio::Affymetrix::CDF;
 use Carp;
 use warnings;
 use strict;
-our $VERSION=0.3;
+
+our $VERSION=0.4;
+
 
 use Bio::Affymetrix::CDF::Probeset;
 
@@ -318,6 +320,25 @@ sub original_num_qc_units {
     return $self->{"NUMQCUNITS"};
 }
 
+=head2 original_file_name
+
+  Arg [0]    : 	none
+  Example    : 	my $cdf_file_name=$cdf->original_file_name();
+  Description:	If this object was created using parse_from_file, the original filename. Otherwise undef.
+  Returntype :	string
+  Exceptions : 	none
+  Caller     : 	general
+
+=cut
+
+
+sub original_file_name {
+    my $self=shift;
+
+    return $self->{"file_name"};
+}
+
+
 # PARSING ROUTINES
 
 =head2 parse_from_string
@@ -337,7 +358,7 @@ sub parse_from_string {
     my $string=shift;
 
 
-    open CDF,"<",\$string or die "Cannot open string stream";
+    open CDF,"<",\$string or carp "Cannot open string stream";
 
     $self->parse_from_filehandle(\*CDF);
 
@@ -359,7 +380,8 @@ sub parse_from_file {
     my $self=shift;
     my $filename=shift;
 
-    open CDF,"<".$filename or die "Cannot open file ".$filename;
+    $self->{"file_name"}=$filename;
+    open CDF,"<".$filename or carp "Cannot open file ".$filename;
 
     $self->parse_from_filehandle(\*CDF);
 
@@ -398,6 +420,7 @@ sub parse_from_filehandle {
     if ($magic_number==67) {
 	# It's a GCOS v1.2 "v4 file", XDA file! Hurrah!
 	$self->_parse_xda($self->{"FH"});
+	delete $self->{"FH"};
 	return;
     }
 
@@ -409,6 +432,7 @@ sub parse_from_filehandle {
 	# It's a MAS5/GCOS v1.0 "v3 file"! Yippee!
 	$self->_parse_mas5($self->{"FH"});
 	return;
+	delete $self->{"FH"};
     }
 
     die "This doesn't look like a CDF file to me.";
@@ -423,11 +447,11 @@ sub _parse_xda {
 
     # First some trivia
 
-    (read ($fh, $buffer, 4)==4) or die "Can no longer read from file";
+    (read ($fh, $buffer, 4)==4) or croak "Can no longer read from file";
     $self->{"VERSION"}= unpack ("V", $buffer);
     
     if ($self->{"VERSION"}!=1) {
-	warn "This CDF file is newer than the software parsing them. Results may be suspect."; # die here, perhaps?
+	carp "This CDF file is newer than the software parsing them. Results may be suspect."; # die here, perhaps?
     } 
 
     # CDF file trivia
@@ -467,9 +491,6 @@ sub _parse_xda {
 	$ps->_parse_from_filehandle_bin($fh,$self->{"_PROBEMODE"});
 	$self->{"PROBESETS"}->{$ps->{"UNITNUMBER"}}=$ps;
     }
-
-
-
 }
 
 

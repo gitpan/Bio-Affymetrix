@@ -54,7 +54,7 @@ This module requires a Bio::Affymetrix::CDF object before it can do
 anything. This must be supplied to the constructor. See the perldoc
 for that to see how to use that module. The module can parse various
 types of CHP file transparently. You can find out what type you have
-by using the version() method.
+by using the original_version() method.
     
 All of the Bio::Affymetrix modules parse a file entirely into
 memory. You therefore need enough memory to hold these objects. For
@@ -125,8 +125,11 @@ Nottingham Arabidopsis Stock Centre (http://arabidopsis.info), University of Not
 
 
 use strict;
+use warnings;
+use Carp;
 
-our $VERSION=0.3;
+our $VERSION=0.4;
+
 
 # Module for processing CHP files
 
@@ -148,6 +151,10 @@ sub new {
     my $self  = {};
 
     $self->{"cdf"}=shift;
+
+    if ((!defined($self->{"cdf"}))||(!$self->{"cdf"}->isa("Bio::Affymetrix::CDF"))) {
+	croak "Need to supply a Bio::Affymetric::CDF file to Bio::Affymetrix::CHP constructor";
+    }
 
     bless ($self, $class);          # reconsecrate
     return $self;
@@ -213,7 +220,7 @@ sub original_format {
 		(currently) 1. For MAS5 files the version is either 12
 		for a file produced by MAS5, or 13 for a GCOS v1.0
 		file. Code is written for parsing version 13 files,
-		but we've no idea if it works.
+		but we\'ve no idea if it works.
 
   Returntype : string
   Exceptions : none
@@ -364,6 +371,26 @@ sub CEL_file_name {
     return $self->{"cel_file_name"};
 }
 
+=head2 original_file_name
+
+  Arg [0]    : 	none
+  Example    : 	my $chp_file_name=$chp->original_file_name();
+  Description:	If this object was created using parse_from_file, the original filename. Otherwise undef.
+  Returntype :	string
+  Exceptions : 	none
+  Caller     : 	general
+
+=cut
+
+
+sub original_file_name {
+    my $self=shift;
+
+    return $self->{"file_name"};
+}
+
+
+
 # ATH1, etc.
 
 =head2 probe_array_type
@@ -483,7 +510,7 @@ sub algorithm_params {
 
 # Print RawQ
 
-print $summary_statistics("RawQ");
+print $chp->summary_statistics()->{"RawQ"};
 
   Description:	Get/set the summary statistics for turning the CEL
 file into this CHP file. Returns a reference to a hash, keyed on
@@ -651,7 +678,7 @@ sub parse_from_string {
   Example    : 	$chp->parse_from_file($chp_filename);
   Description:	Parse a CHP file from a file
   Returntype :	none
-  Exceptions : 	dies if can't open file
+  Exceptions : 	dies if can\'t open file
   Caller     : 	general
 
 =cut
@@ -662,6 +689,7 @@ sub parse_from_file {
     my $filename=shift;
 
     open CHP,"<".$filename or die "Cannot open file ".$filename;
+    $self->{"file_name"}=$filename;
 
     $self->parse_from_filehandle(\*CHP);
 
@@ -697,7 +725,6 @@ sub parse_from_filehandle {
     my $magic_number = unpack("V", $buffer);
 
     if ($magic_number==65) {
-	# It's a GCOS v1.2 "v4 file", XDA file! Hurrah!
 	$self->_parse_xda($fh);
 	return;
     }
@@ -818,7 +845,7 @@ sub _parse_xda {
 
 	my $probesetlist=$self->{"cdf"}->probesets();
 
-	foreach my $i (sort(keys(%$probesetlist))) {
+	foreach my $i (sort {int($a)<=>int($b)} keys(%$probesetlist)) {
 	    read ($fh, $buffer, $size);
 	    
 	    # Non-comparison analysis
@@ -968,7 +995,7 @@ sub _parse_mas5 {
 	    
 	    my $probesetlist=$self->{"cdf"}->probesets();
 	    
-	    foreach my $i (sort(keys(%$probesetlist))) {
+	    foreach my $i (sort {int($a)<=>int($b)} keys(%$probesetlist)) {
 
 		# Non-comparison analysis
 
@@ -1108,5 +1135,253 @@ sub unpack_length_string {
 
 }
 
+
+=head2 write_to_file
+
+  Arg [1]    : 	string $filename
+  Arg [2]    : 	string $format
+  Arg [3]    : 	string $version
+  Example    : 	$cdf->write_to_file($cdf_filename);
+  Description:	Writes a CDF file to a file. See write_to_filehandle for descriptions of format and version
+  Returntype :	none
+  Exceptions : 	dies if cannot open file
+  Caller     : 	general
+
+=cut
+
+sub write_to_file {
+    my $self=shift;
+    my $filename=shift;
+
+    open CDF,">".$filename or die "Cannot open file for writing".$filename;
+
+    $self->write_to_filehandle(\*CDF,@_);
+
+    close CDF;
+}
+
+=head2 write_to_filehandle
+
+  Arg [1]    : 	filehandle $filehandle
+  Arg [2]    : 	string $format
+  Arg [3]    : 	string $version
+  Example    : 	$chp->write_to_filehandle(\*STDOUT);
+  Description:	Writes a CDF file to a filehandle. Takes arguments of
+  the filehandle, the desired format, and the desired version of that
+  format.
+  Currently, format defaults to MAS5, and version defaults to
+  GC3.0. These are the only formats the software is capable of
+  producing currently. Also, this software cannot write files that
+  were read in using GCOS file format.
+  Returntype :	none
+  Exceptions : 	dies if cannot open file
+  Caller     : 	general
+
+=cut
+
+
+sub write_to_filehandle {
+    my $self=shift;
+    my $filehandle=shift;
+    my $format=shift;
+    my $version=shift;
+    my $fake=shift;
+
+    if (!defined $format) {
+	$format="MAS5";
+	$version=12;
+    }
+
+    if ($format eq "XDA" && !defined $version) {
+	$version=1;
+    }
+
+    if ($format eq "XDA") {
+	$self->_write_xda($filehandle,$version,$fake);
+    } elsif ($format eq "MAS5") {
+	$self->_write_mas5($filehandle,$version,$fake);
+    } else {
+	croak "Format must be XDA or MAS5";
+    }
+}
+
+sub _write_xda {
+    my $self=shift;
+    
+    my $filehandle=shift;
+    my $version=shift;
+
+    my $fake=shift;
+
+    if ($version!=1) {
+	croak "Bio::Affymetrix can only write version 1 XDA files";
+    }
+
+    # Static stuff- always the same
+
+    print $filehandle pack ("V2S2V3",65,$version,$self->{"no_cols"},$self->{"no_rows"},$self->{"no_units"},$self->{"no_qc_units"},0); # 0 at the end means expression array. Check no_units, no_qc_units!
+    
+    if (!$fake) {
+	print $filehandle pack ("V/a*","GeneChip.CallGEBaseCall.1"); 
+    } else {
+	print $filehandle pack ("V/a*","Bio::Affymetrix version ".$VERSION); 
+    }
+    print $filehandle pack ("V/a*",$self->{"cel_file_name"});
+
+    print $filehandle pack ("V/a*",$self->{"probe_array_type"});
+    print $filehandle pack ("V/a*",$self->{"algorithm_name"}); 
+    print $filehandle pack ("V/a*",$self->{"algorithm_version"}); 
+
+    print $filehandle pack ("V",scalar(keys %{$self->{"algorithm_params"}}));
+    
+    while (my ($key,$value)=each %{$self->{"algorithm_params"}}) {
+	print $filehandle pack ("V/a*V/a*",$key,$value); 
+    }
+
+    print $filehandle pack ("V",scalar(keys %{$self->{"summary_statistics"}}));
+    
+    while (my ($key,$value)=each %{$self->{"summary_statistics"}}) {
+	print $filehandle pack ("V/a*V/a*",$key,$value); 
+    }
+
+    print $filehandle pack ("Vf",scalar(@{$self->{"zones"}}),$self->{"smooth_factor"});
+
+    foreach my $i (@{$self->{"zones"}}) {
+	print $filehandle pack ("f3",@$i);
+    }
+    
+    print $filehandle pack("C", $self->{"analysis_type"});
+
+    # Hand calculated size of objects
+
+    if ($self->{"analysis_type"}==0 || $self->{"analysis_type"}==2) {
+	print $filehandle pack("V", 13);
+    } else {
+	print $filehandle pack("V", 32);
+    }
+    # Resequencing - BLANKED
+    
+    my $probesetlist=$self->{"cdf"}->probesets();
+    
+    foreach my $i (sort {int($a)<=>int($b)} keys(%$probesetlist)) {
+	if ($self->{"analysis_type"}==0 || $self->{"analysis_type"}==2) {
+	    my $result=$self->{"probe_set_results"}->{$probesetlist->{$i}->name()};
+
+	    my $dt;
+
+	    if ($result->{"DetectionCall"} eq "P") {
+		$dt=0;
+	    } elsif ($result->{"DetectionCall"} eq "M") {
+		$dt=1;
+	    } elsif ($result->{"DetectionCall"} eq "A") {
+		$dt=2;
+	    } elsif ($result->{"DetectionCall"} eq "N") {
+		$dt=3;
+	    }
+
+	    print $filehandle pack("Cf2S2",$dt,$result->{"DetectionPValue"},$result->{"Signal"},$result->{"StatPairs"},$result->{"StatPairsUsed"});
+
+	} else {
+	    # Comparison analysis
+	    my $result=$self->{"probe_set_results"}->{$probesetlist->{$i}->name()};
+
+	    my $dt;
+
+	    if ($result->{"DetectionCall"} eq "P") {
+		$dt=0;
+	    } elsif ($result->{"DetectionCall"} eq "M") {
+		$dt=1;
+	    } elsif ($result->{"DetectionCall"} eq "A") {
+		$dt=2;
+	    } elsif ($result->{"DetectionCall"} eq "N") {
+		$dt=3;
+	    }
+
+	    print $filehandle pack("Cf2S2Cf4S",$dt,$result->{"DetectionPValue"},$result->{"Signal"},$result->{"StatPairs"},$result->{"StatPairsUsed"},$result->{"Change"},$result->{"ChangePValue"},$result->{"SignalLogRatio"},$result->{"SignalLogRatioLow"},$result->{"SignalLogRatioHigh"},$result->{"CommonPairs"});
+	}
+    }
+}
+
+sub _write_mas5 {
+    my $self=shift;
+    
+    my $filehandle=shift;
+    my $version=shift;
+
+    my $fake=shift;
+
+    if (!defined $version) {
+	$version=12;
+    }
+
+    if ($version!=12) {
+	croak "Unfortuantely, these modules can only write version 12 MAS5 files at present. If you've got software that can make or read version 13 files, please write to the authors of Bio::Affymetrix";
+    }
+
+
+    print $filehandle pack("a22VV/a*V/a*","GeneChip Sequence File",$version,$self->{"algorithm_name"},$self->{"algorithm_version"});
+
+    {
+	# Make parameters and summary stats
+	
+	my $algoparams;
+	
+	while (my ($key,$value)=each %{$self->{"algorithm_params"}}) {
+	    $algoparams.=$key."=".$value." ";
+	}
+	
+	my $algosummary;
+	
+	while (my ($key,$value)=each %{$self->{"summary_statistics"}}) {
+	    $algosummary.=$key."=".$value." ";
+	}
+
+	print $filehandle pack("V/a*V/a*",$algoparams,$algosummary);
+    }
+
+    
+    # Rows,columns come from CDF file
+
+    print $filehandle pack("V2",(scalar(@{$self->CDF()->probe_grid()})+1),(scalar(@{$self->CDF()->probe_grid()->[1]})+1)); ##Maybe?
+    
+    my @probelist=sort {int($a)<=>int($b)} (keys %{$self->CDF()->probesets()});
+
+    # Number of probes trivia
+    
+    print $filehandle pack("V3",scalar(@probelist),$probelist[scalar(@probelist)-1],$self->{"no_qc_units"});
+
+    print $filehandle pack("V*",@probelist);
+
+
+    # This bit is surely a mistake. They want the number of probe pairs per probeset, until probeset number is greater than the number of probesets
+
+    foreach my $i (@probelist) {
+	if ($i<scalar(@probelist)) {
+	    print $filehandle pack("V",scalar(@{$self->CDF()->probesets()->{$i}->probe_pairs()}));
+	} else {
+	    print $filehandle pack("V",0);
+	}
+    }
+
+    foreach my $i (@probelist) {
+	print $filehandle pack("V",(3));
+    }
+
+    foreach my $i (@probelist) {
+	print $filehandle pack("V",scalar(@{$self->CDF()->probesets()->{$i}->probe_pairs()->[0]}));
+    }
+
+    
+    print $filehandle pack("a256a256",$self->{"probe_array_type"},$self->{"cel_file_name"});
+
+    if (!$fake) {
+	print $filehandle pack ("V/a*","GeneChip.CallGEBaseCall.1"); 
+    } else {
+	print $filehandle pack ("V/a*","Bio::Affymetrix version ".$VERSION); 
+    }
+
+    
+
+}
 
 1;

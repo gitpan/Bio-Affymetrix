@@ -12,8 +12,7 @@ use Carp;
 
 use warnings;
 use strict;
-
-our $VERSION=0.3;
+our $VERSION=0.4;
 
 # Docs come before the code
 
@@ -329,6 +328,7 @@ sub probe_pairs {
     return $self->{"PROBES"};
 }
 
+
 sub probes {
     my $self=shift;
 
@@ -405,10 +405,8 @@ sub _parse_from_filehandle {
 		$h->{"ATOM"}=$s[10];
 		$h->{"INDEX"}=$s[11];
 		$h->{"PROBESET"}=$self;
-
-		if ($self->{"probemode"}) {
-		    push @{$self->{"PROBES"}->[$h->{"ATOM"}]},$h;
-		}
+		push @{$self->{"PROBES"}->[$h->{"ATOM"}]},$h;
+		$self->{"CDF"}->{"PROBEGRID"}->[$h->{"X"}][$h->{"Y"}]=$h;
 
 	    } elsif (uc $name eq "NAME") {
 		$self->{"NAME"}=$value;
@@ -469,6 +467,7 @@ sub _parse_from_filehandle_bin {
 	    $h->{"PROBESET"}=$self;
 	    
 	    push @{$self->{"PROBES"}->[$h->{"ATOM"}]},$h;
+	    $self->{"CDF"}->{"PROBEGRID"}->[$h->{"X"}][$h->{"Y"}]=$h;
 	}
     }
 
