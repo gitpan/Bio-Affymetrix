@@ -30,7 +30,7 @@ Probeset documentation.
 <TR><TD COLSPAN="2"><b><font color="#0000ff">warnings</font></b></TD></TR>
 </TABLE>
 <A NAME="SYNOPSIS"></A>
-<TABLE BORDER="0" WIDTH="100%" CELLSPACING="0"><TR BGCOLOR="#ffae84"><TD><B>Synopsis</B></TD><TD ALIGN="RIGHT"><A HREF="#TOP">top</A></TD></TR></TABLE><TABLE BORDER="0"><TR><TD COLSPAN="2"><pre>use Bio::Affymetrix::CDF;<BR><BR># Parse the CDF file<BR><BR>my $cdf=new CDF();<BR><BR>$cdf-&gt;parse_from_file(&quot;foo.cdf&quot;);<BR><BR># Print out the probeset name of Unit 1001<BR><BR>my $probeset=$chp-&gt;probesets()-&gt;{1001};<BR><BR>print $probeset-&gt;name();<BR></pre>
+<TABLE BORDER="0" WIDTH="100%" CELLSPACING="0"><TR BGCOLOR="#ffae84"><TD><B>Synopsis</B></TD><TD ALIGN="RIGHT"><A HREF="#TOP">top</A></TD></TR></TABLE><TABLE BORDER="0"><TR><TD COLSPAN="2"><pre>use Bio::Affymetrix::CDF;<BR><BR># Parse the CDF file<BR><BR>my $cdf=new Bio::Affymetrix::CDF();<BR><BR>$cdf-&gt;parse_from_file(&quot;foo.cdf&quot;);<BR><BR># Print out the probeset name of Unit 1001<BR><BR>my $probeset=$cdf-&gt;probesets()-&gt;{1001};<BR><BR>print $probeset-&gt;name();<BR></pre>
 </TD></TR></TABLE>
 <A NAME="DESCRIPTION"></A>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0"><TR BGCOLOR="#ffae84"><TD><B>Description</B></TD><TD ALIGN="RIGHT"><A HREF="#TOP">top</A></TD></TR></TABLE><TABLE BORDER="0"><TR><TD COLSPAN="2"><pre>The Affymetrix microarray system produces files in a variety of<BR>formats. If this means nothing to you, these modules are probably not<BR>for you :). After these modules have parsed a CDF file, the resulting<BR>Bio::Affymetrix::CDF file contains a hash of<BR>Bio::Affmetrix::CDF::Probeset objects, keyed on the unit number. This allows you look at the<BR>details of the probeset.<BR><BR>If you have parsed a CDF file with probe-level parsing turned on, you<BR>can examine the individual probes using the probes method. By altering<BR>the contents of this array, you can redesign the chip! NASC use this<BR>in our cross-species work (<a href="http://affymetrix.arabidopsis.info/xspecies" target="urlWin">http://affymetrix.arabidopsis.info/xspecies</a>).<BR></pre>
@@ -54,7 +54,7 @@ Probeset documentation.
 <TR><TD><B>probes</B></TD><TD><FONT COLOR="RED"><B>No description</B></FONT></TD><TD><A HREF="#CODE13">Code</A></TD></TR>
 <TR><TD><B>unit_name</B></TD><TD><A HREF="#POD10">Description</A></TD><TD><A HREF="#CODE14">Code</A></TD></TR>
 <TR><TD><B>unit_number</B></TD><TD><FONT COLOR="RED"><B>No description</B></FONT></TD><TD><A HREF="#CODE15">Code</A></TD></TR>
-<TR><TD><B>unit_type</B></TD><TD><FONT COLOR="RED"><B>No description</B></FONT></TD><TD><A HREF="#CODE16">Code</A></TD></TR>
+<TR><TD><B>unit_type</B></TD><TD><A HREF="#POD11">Description</A></TD><TD><A HREF="#CODE16">Code</A></TD></TR>
 </TABLE>
 <A NAME="MethDesc"></A>
 <HR><H2>Methods description</H2>
@@ -88,6 +88,9 @@ Probeset documentation.
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
 <TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_unit_name"></A><A NAME="POD10"></A><B>unit_name</B></TD><TD><A HREF="#CODE14">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD9">prev</A></TD><TD><A HREF="#POD11">next</A></TD></TR></TABLE>
 <pre>  Arg [1]    : 	string $unit_name (optional)<BR>  Example    : 	my $unit_name=$ps-&gt;unit_name()<BR>  Description: 	Always NONE for expression arrays. Only available in MAS5 files<BR>  Returntype : string<BR>  Exceptions : none<BR>  Caller     : general<BR></pre>
+<TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
+<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_unit_type"></A><A NAME="POD11"></A><B>unit_type</B></TD><TD><A HREF="#CODE16">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD10">prev</A></TD><TD><A HREF="#POD12">next</A></TD></TR></TABLE>
+<pre>  Arg [1]    : 	optional, one of &quot;CustomSeq&quot;, &quot;genotyping&quot;, &quot;expression&quot;, &quot;tag/GenFlex&quot;<BR>  Example    : 	my $unit_type=$ps-&gt;unit_type()<BR>  Description: 	Get/Set the unit number of this probeset. Probably expression only<BR>  Returntype : one of &quot;CustomSeq&quot;, &quot;genotyping&quot;, &quot;expression&quot;, &quot;tag/GenFlex&quot;<BR>  Exceptions : none<BR>  Caller     : general<BR></pre>
 <A NAME="MethCode"></A>
 <HR><H2>Methods code</H2>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
@@ -143,10 +146,8 @@ Probeset documentation.
 		<font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"ATOM"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$s</font><font color="#0000ff"><b>[</b></font>10<font color="#0000ff"><b>]</b></font>;
 		<font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"INDEX"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$s</font><font color="#0000ff"><b>[</b></font>11<font color="#0000ff"><b>]</b></font>;
 		<font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBESET"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$self</font>;
-
-		<font color="#0000ff"><b>if</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"probemode"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
-		    <font color="#4169e1"><b>push</b></font> @<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBES"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"ATOM"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$h</font>;
-		<font color="#0000ff"><b>}</b></font>
+		<font color="#4169e1"><b>push</b></font> @<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBES"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"ATOM"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$h</font>;
+		<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"CDF"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBEGRID"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"X"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font><font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"Y"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font>=<font color="#1f32ff">$h</font>;
 
 	    <font color="#0000ff"><b>}</b></font> <font color="#0000ff"><b>elsif</b></font> <font color="#0000ff"><b>(</b></font><font color="#4169e1"><b>uc</b></font> <font color="#1f32ff">$name</font> <font color="#0000ff"><b>eq</b></font> <font color="#007400">"NAME"</font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
 		<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"NAME"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$value</font>;
@@ -172,6 +173,17 @@ Probeset documentation.
     <font color="#0000ff"><b>(</b></font><font color="#4169e1"><b>read</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$fh</font>, <font color="#1f32ff">$buffer</font>, 20<font color="#0000ff"><b>)</b></font>==20<font color="#0000ff"><b>)</b></font> or <font color="#4169e1"><b>die</b></font> <font color="#007400">"Can no longer read from file"</font>;
 
     <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"DIRECTION"</font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"NUMATOMS"</font><font color="#0000ff"><b>}</b></font>,<font color="#4169e1"><b>undef</b></font>,<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"NUMCELLS"</font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITNUMBER"</font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"ATOMSPERCELL"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>)</b></font>=<font color="#4169e1"><b>unpack</b></font> <font color="#0000ff"><b>(</b></font><font color="#007400">"SCV4C"</font>,<font color="#1f32ff">$buffer</font><font color="#0000ff"><b>)</b></font>;
+
+    <font color="#ff0000">## Translate UNITTYPE into equivalent numbers for MAS5</font><BR>
+    <font color="#0000ff"><b>if</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>==1<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
+	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>=3;
+    <font color="#0000ff"><b>}</b></font> <font color="#0000ff"><b>elsif</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>==2<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
+	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>=2;
+    <font color="#0000ff"><b>}</b></font> <font color="#0000ff"><b>elsif</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>==3<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
+	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>=1;
+    <font color="#0000ff"><b>}</b></font> <font color="#0000ff"><b>elsif</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>==4<font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
+	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"UNITTYPE"</font><font color="#0000ff"><b>}</b></font>=7;
+    <font color="#0000ff"><b>}</b></font> 
 
     <font color="#ff0000">## Block information- we assume one block only since we only do expression arrays</font><BR>
     <font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"NUMBERBLOCKS"</font><font color="#0000ff"><b>}</b></font>=1;
@@ -201,6 +213,7 @@ Probeset documentation.
 	    <font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBESET"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$self</font>;
 	    
 	    <font color="#4169e1"><b>push</b></font> @<font color="#0000ff"><b>{</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBES"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"ATOM"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font><font color="#0000ff"><b>}</b></font>,<font color="#1f32ff">$h</font>;
+	    <font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"CDF"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PROBEGRID"</font><font color="#0000ff"><b>}</b></font>-&gt;<font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"X"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font><font color="#0000ff"><b>[</b></font><font color="#1f32ff">$h</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"Y"</font><font color="#0000ff"><b>}</b></font><font color="#0000ff"><b>]</b></font>=<font color="#1f32ff">$h</font>;
 	<font color="#0000ff"><b>}</b></font>
     <font color="#0000ff"><b>}</b></font></pre>}<BR>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
@@ -298,7 +311,7 @@ Probeset documentation.
     carp <font color="#007400">"unit_number is deprecated. Use original_unit_number instead (same function only renamed)"</font>;
     <font color="#1f32ff">$self</font>-&gt;<font color="#ff8204">original_unit_number</font><font color="#0000ff"><b>(</b></font><font color="#1f32ff">@_</font><font color="#0000ff"><b>)</b></font>;</pre>}<BR>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
-<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE16"></A><B>unit_type</B></TD><TD>description</TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE15">prev</A></TD><TD WIDTH="30">next</TD></TR></TABLE>
+<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE16"></A><B>unit_type</B></TD><TD><A HREF="#POD11">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE15">prev</A></TD><TD WIDTH="30">next</TD></TR></TABLE>
 <font color="#0000ff"><b>sub</b></font> <font color="#ff0000"><b>unit_type</b></font>
  {<pre>    <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$self</font>=<font color="#4169e1"><b>shift</b></font>;
 

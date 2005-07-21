@@ -73,7 +73,7 @@ use Carp;
 
 use warnings;
 use strict;
-our $VERSION=0.4;
+our $VERSION=0.5;
 
 =head2 new
 
@@ -172,7 +172,8 @@ sub original_probe_number {
     Example    :  my $position=$probe->mismatch_position();
  Description: 	Get/set the postition of the mismatch base (in the
  25-mer oligo. As far as the author knows, all factory Affymetrix
-chips have the mismatch probe in position 13).
+chips have the mismatch probe in position 13). Only available if the
+    original CDF file was in MAS5 format. 
     Returntype : integer
     Exceptions : none
     Caller     : general
@@ -209,7 +210,7 @@ sub probe_mismatch_base {
 }
 
 # 
-=head2 probe_mismatch_base
+=head2 probe_target_base
     Arg [1]    : char $base
     Example    : my $base=$probe->probe_target_base()
   Description: 	Get/set what the base (A, C, T or G) would be if it is to detect for

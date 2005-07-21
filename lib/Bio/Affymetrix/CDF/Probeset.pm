@@ -12,7 +12,7 @@ use Carp;
 
 use warnings;
 use strict;
-our $VERSION=0.4;
+our $VERSION=0.5;
 
 # Docs come before the code
 
@@ -26,13 +26,13 @@ use Bio::Affymetrix::CDF;
 
 # Parse the CDF file
 
-my $cdf=new CDF();
+my $cdf=new Bio::Affymetrix::CDF();
 
 $cdf->parse_from_file("foo.cdf");
 
 # Print out the probeset name of Unit 1001
 
-my $probeset=$chp->probesets()->{1001};
+my $probeset=$cdf->probesets()->{1001};
 
 print $probeset->name();
 
@@ -215,6 +215,16 @@ sub unit_number {
 }
 
 # type of unit as an ENUM like thing
+
+
+=head2 unit_type
+  Arg [1]    : 	optional, one of "CustomSeq", "genotyping", "expression", "tag/GenFlex"
+  Example    : 	my $unit_type=$ps->unit_type()
+  Description: 	Get/Set the unit number of this probeset. Probably expression only
+  Returntype : one of "CustomSeq", "genotyping", "expression", "tag/GenFlex"
+  Exceptions : none
+  Caller     : general
+=cut
 
 sub unit_type {
     my $self=shift;
@@ -437,6 +447,18 @@ sub _parse_from_filehandle_bin {
     (read ($fh, $buffer, 20)==20) or die "Can no longer read from file";
 
     ($self->{"UNITTYPE"},$self->{"DIRECTION"},$self->{"NUMATOMS"},undef,$self->{"NUMCELLS"},$self->{"UNITNUMBER"},$self->{"ATOMSPERCELL"})=unpack ("SCV4C",$buffer);
+
+    # Translate UNITTYPE into equivalent numbers for MAS5
+
+    if ($self->{"UNITTYPE"}==1) {
+	$self->{"UNITTYPE"}=3;
+    } elsif ($self->{"UNITTYPE"}==2) {
+	$self->{"UNITTYPE"}=2;
+    } elsif ($self->{"UNITTYPE"}==3) {
+	$self->{"UNITTYPE"}=1;
+    } elsif ($self->{"UNITTYPE"}==4) {
+	$self->{"UNITTYPE"}=7;
+    } 
 
     # Block information- we assume one block only since we only do expression arrays
 

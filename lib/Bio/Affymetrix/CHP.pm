@@ -16,14 +16,14 @@ use Bio::Affymetrix::CDF;
 
 # Parse the CDF file
 
-my $cdf=new CDF();
+my $cdf=new Bio::Affymetrix::CDF();
 
 $cdf->parse_from_file("foo.cdf");
 
 
 # Make a new CHP object, using the CDF file
 
-my $chp=new CHP($cdf);
+my $chp=new Bio::Affymetrix::CHP($cdf);
 
 # Parse CHP file
 
@@ -38,8 +38,8 @@ print $chp->version()."\n";
 
 # Print out all of the signal values for this chip
 
-foreach my $i (keys %{$chp->probe_set_results()}) {
-    print $i.",".$CHP->probe_set_results()->{$i}->{"Signal"}."\n";
+while (my ($probename,$results)=each %{$chp->probe_set_results()}) {
+    print $probename.",".$results->{"Signal"}."\n";
 }
 
 
@@ -61,6 +61,9 @@ memory. You therefore need enough memory to hold these objects. For
 some applications, parsing as a stream may be more appropriate-
 hopefully the source to these modules will give enough clues to make
 this an easy task. 
+
+You can also use this software to write CHP files (see the
+write_to_file and write_to_filehandle methods). 
 
 =head2 HINTS
 
@@ -97,9 +100,22 @@ parser.
 
 This module can only do expression arrays.
 
-=head1 TODO
+Writing CHP files should work no matter what kind of CHP file was
+parsed originally. In other words, you can use these modules as a CHP
+file converter.
 
-Writing CHP files as well as reading them.
+As stated above, some of the information that is in a MAS5 file is not
+present in an GCOS file. This module throws away all of this
+additional information. This means that if you try and write a MAS5
+file, there will be large blank sections. This should not put off any
+programs that use them- this tactic was based on the Affymetrix
+conversion.
+
+=head2 KNOWN BUG
+
+Change P Value always comes out wrong when using comparison CHP files
+from MAS5. If you have a solution for this, please send email to the
+addresses below.
 
 =head1 COPYRIGHT
 
@@ -128,8 +144,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION=0.4;
-
+our $VERSION=0.5;
 
 # Module for processing CHP files
 
@@ -335,7 +350,7 @@ sub original_number_qc_units {
 
   Arg [0]    : 	none
   Example    : 	my $com_id=$chp->original_com_progid()
-  Description:	Gets the progid of the orignal COM object that made
+  Description:	Gets the progid of the original Microsoft COM object that made
 				this CHP file
   Returntype :	string
   Exceptions : 	none
@@ -665,7 +680,7 @@ sub parse_from_string {
     my $string=shift;
 
 
-    open CHP,"<",\$string or die "Cannot open string stream";
+    open CHP,"<",\$string or croak "Cannot open string stream";
 
     $self->parse_from_filehandle(\*CHP);
 
@@ -688,7 +703,7 @@ sub parse_from_file {
     my $self=shift;
     my $filename=shift;
 
-    open CHP,"<".$filename or die "Cannot open file ".$filename;
+    open CHP,"<".$filename or croak "Cannot open file ".$filename;
     $self->{"file_name"}=$filename;
 
     $self->parse_from_filehandle(\*CHP);
@@ -741,7 +756,7 @@ sub parse_from_filehandle {
 	return;
     }
 
-    die "This doesn't look like a CHP file to me. I can only understand certain CHP filetypes, however\n";
+    croak "This doesn't look like a CHP file to me. I can only understand certain CHP filetypes, however\n";
 }
 
 sub _parse_xda {
@@ -757,7 +772,7 @@ sub _parse_xda {
     $self->{"version"}= unpack ("V", $buffer);
     
     if ($self->{"version"}!=1) {
-	warn "This CHP file is newer than the software parsing them. Results may be suspect."; # die here, perhaps?
+	carp "This CHP file is newer than the software parsing them. Results may be suspect."; # die here, perhaps?
     }
 
     read ($fh, $buffer, 12);
@@ -768,7 +783,7 @@ sub _parse_xda {
     $self->{"chip_type"}=unpack ("V", $buffer);
 
     if ($self->{"chip_type"}!=0) {
-	die "This software does not process non-expression arrays";
+	croak "This software does not process non-expression arrays";
     }
     
     $self->{"com_progid"}=$self->unpack_length_string($fh);
@@ -809,8 +824,6 @@ sub _parse_xda {
 	for (my $i=0;$i<$no_stats;$i++) {
 	    my $name=$self->unpack_length_string($fh);
 	    my $value=$self->unpack_length_string($fh);
-	    # Strip trailing space
-	    $value=~s/\s*$//o;
 	    $h{$name}=$value;
 	}
 
@@ -921,11 +934,11 @@ sub _parse_mas5 {
     $self->{"version"}=unpack ("V", $buffer);
 
     if ($self->{"version"}!=12&&$self->{"version"}!=13) {
-	warn "This CHP file has a version number unrecognised by the software parsing them. Results may be suspect."; # die here, perhaps?
+	carp "This CHP file has a version number unrecognised by the software parsing them. Results may be suspect."; # die here, perhaps?
     }
 
     if ($self->{"version"}==13) {
-	warn "The authors of this module have never seen a genuine GCOS v1.0 CHP file. This program can parse them, but we're only relying on the specification supplied by Affymetrix- we've not tested this at all. Suspect results therefore are highly likely.";
+	carp "The authors of this module have never seen a genuine GCOS v1.0 CHP file. This program can parse them, but we're only relying on the specification supplied by Affymetrix- we've not tested this at all. Suspect results therefore are highly likely.";
     }
     # Trivia section
 
@@ -980,7 +993,7 @@ sub _parse_mas5 {
     ($self->{"probe_array_type"},$self->{"cel_file_name"})=unpack ("Z256Z256",$buffer);
 
     if ($self->{"probe_array_type"} ne $self->{"cdf"}->name()) {
-	warn "The CDF object you have supplied does not have the same name as the CDF file used to make this CHP file. Results may be dubious";
+	carp "The CDF object you have supplied does not have the same name as the CDF file used to make this CHP file. Results may be dubious";
     }
 
     $self->{"com_progid"}=$self->unpack_length_string($fh);
@@ -1030,11 +1043,10 @@ sub _parse_mas5 {
 		# Comparison analysis
 
 		if (unpack("V",$buffer)==1) {
-			$self->{"comparison"}=1;
+		    $self->{"comparison"}=1;
 		    read ($fh, $buffer, 58);
-		    my @results=unpack("V5c2V9",$buffer);
+		    my @results=unpack("V5c2l9",$buffer);
 
-		    my %h;
 		    $h{"Change"}=$results[4];
 		    $h{"ChangePValue"}=$results[15]/1000;
 		    $h{"SignalLogRatio"}=$results[12]/1000;
@@ -1042,7 +1054,7 @@ sub _parse_mas5 {
 		    $h{"SignalLogRatioHigh"}=$results[9]/1000;
 		    $h{"CommonPairs"}=$results[0];
 		    $h{"BaselineAbsent"}=$results[5];
-		    $h{"Probeset"}=$probesetlist->[$i];
+		    $h{"Probeset"}=$probesetlist->{$i};
 		}
 		
 #		$probesetlist->[$i] or die "Suspect CDF file! We have more data in the CHP file than expected. Are you using the right CDF file?";
@@ -1170,9 +1182,7 @@ sub write_to_file {
   the filehandle, the desired format, and the desired version of that
   format.
   Currently, format defaults to MAS5, and version defaults to
-  GC3.0. These are the only formats the software is capable of
-  producing currently. Also, this software cannot write files that
-  were read in using GCOS file format.
+  GC3.0.
   Returntype :	none
   Exceptions : 	dies if cannot open file
   Caller     : 	general

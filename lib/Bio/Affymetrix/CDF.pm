@@ -37,7 +37,7 @@ foreach my $i (keys %{$chp->probesets}) {
 The Affymetrix microarray system produces files in a variety of
 formats. If this means nothing to you, these modules are probably not
 for you :). This module parses CDF files. Use this module if you want
-to find out about the design of an Affymetrix CHP, or you need the
+to find out about the design of an Affymetrix GeneChip, or you need the
 object for another one of the modules in this package.
 
 All of the Bio::Affymetrix modules parse a file entirely into
@@ -49,6 +49,9 @@ probe information is also stored (about 150Mb). Memory usage is not too
 onorous (about 15Mb) if probe level information is omitted. You
 can.control this by setting probemode=>1 or probemode=>0 in the constructor.
 
+You can also use these modules to write CDF files (using the
+write_to_filehandle method). See COMPATIBILITY for some important caveats.
+
 =head2 HINTS
 
 You fill the object filled with data using the
@@ -57,8 +60,10 @@ routines. You can get/set various statistics using methods on the
 object.
 
 The key method is probesets. This returns a reference to a hash of
-Bio::Affymetrix::CDF::Probeset objects, keyed on unit number. Each
-Probeset object contains information about the probesets.
+Bio::Affymetrix::CDF::Probeset objects. The keys of this hash are unit
+number - if you are looking for a specific probeset you will have to
+search for it yourself. Each Bio::Affymetrix::CDF::Probeset object
+contains information about the probesets. 
 
 
 =head1 NOTES
@@ -70,9 +75,17 @@ can be located at http://www.affymetrix.com/support/developer/AffxFileFormats.ZI
 
 =head2 COMPATIBILITY
 
-This module can parse the CDF files produced by the Affymetrix software
-MAS 5 only. This is different from the Bio::Affymetrix::CHP
-module. These files have QC information in them, which is thrown away.
+This module can parse the CDF files used with the Affymetrix software
+MAS 5 and GCOS. These files have QC information in them (such as the
+information of the location of the QC probesets), which is not parsed.
+
+This module can also write CDF files. The support is currently pretty
+limited .Currently the software can only write MAS5 files (not XDA
+format files), and will only write files that have been parsed in
+previously- it cannot create CDF files from scratch. So if you have
+any way of making Affymetrix chips, you will just have to look
+elsewhere :). These limitations are caused through not parsing the QC
+information. 
 
 =head1 TODO
 
@@ -107,9 +120,7 @@ package Bio::Affymetrix::CDF;
 use Carp;
 use warnings;
 use strict;
-
-our $VERSION=0.4;
-
+our $VERSION=0.5;
 
 use Bio::Affymetrix::CDF::Probeset;
 
@@ -129,7 +140,7 @@ sub new {
     my $q=shift;
     my $self={};
 
-    if (ref $q eq "HASH") {
+    if (ref $q eq "HASH" && exists $q->{"probemode"}) {
 	$self->{"_PROBEMODE"}=$q->{"probemode"};
     } else {
 	$self->{"_PROBEMODE"}=undef;
@@ -163,7 +174,7 @@ sub original_version {
   Example    : 	my $format=$cdf->original_format()
   Description:	Returns the format of the CDF file parsed. Currently
     MAS5 or XDA.
-  Returntype : 	string ("MAS5")
+  Returntype : 	string
   Exceptions : 	none
   Caller     : 	general
 
@@ -181,7 +192,7 @@ sub original_format {
   Arg [1]    : 	string $name (optional)
   Example    : 	my $name=$cdf->name()
   Description: 	Get/set the name of this chip type
-  (e.g. ATH1-121501). Only supplied by MAS5 files.
+  (e.g. ATH1-121501). Only supplied by MAS5 version files.
   Returntype : string
   Exceptions : none
   Caller     : general
@@ -271,6 +282,33 @@ sub probesets {
 }
 
 
+=head2 probe_grid
+  Arg [1]    : arrayref $probelist
+    Example    : my $probe=$ps->probe_grid()->[500][500]; #Return probe at 500,500
+  Description: Get/set the grid of probes making up this array. Only available if
+    with probes mode is used.
+
+    Returns an reference to a two dimensional array of
+    Bio::Affymetrix::CDF::Probe objects. 
+  Returntype : reference to two-dimensional array of Bio::Affymetrix::CDF::Probe objects
+  Exceptions : none
+  Caller     : general
+=cut
+
+
+sub probe_grid {
+    my $self=shift;
+    if (!$self->{"_PROBEMODE"}) {
+	croak "probe_grid is not available when not in probemode";
+    }
+
+    if (my $q=shift) {
+	$self->{"PROBEGRID"}=$q;
+    }
+    return $self->{"PROBEGRID"};
+}
+
+
 # These are all named "original_" because they aren't calculated, they are what a parsed file claims
 
 =head2 original_number_of_probes
@@ -278,7 +316,7 @@ sub probesets {
   Example    : 	my $number_of_probes=$cdf->original_number_of_probes()
   Description: 	Get the number of probesets on the array, as listed
 originally in the file. A better way is to do my
-$q=scalar(@{$cdf->probesets()}); if you want a current count.
+$q=scalar(@{$cdf->probesets()}); if you want a current count. Should really be called original_number_of_probesets.
   Returntype : integer
   Exceptions : none
   Caller     : general
@@ -293,7 +331,7 @@ sub original_number_of_probes {
 =head2 original_max_unit
   Arg [0]    : 	none
   Example    : 	my $max_units=$cdf->original_max_units()
-  Description: 	Get the max unit number in the CDF file. Fairly useless.
+  Description: 	Get the max unit number in the CDF file. Fairly useless. Only available in MAS5 files
   Returntype : integer
   Exceptions : none
   Caller     : general
@@ -413,7 +451,7 @@ sub parse_from_filehandle {
 
     # XDA files have their first feature as a magic number, 65
 
-    read ($self->{"FH"}, $buffer, 4) or die "Cannot read from file";;
+    read ($self->{"FH"}, $buffer, 4) or die "Cannot read from file";
     my $magic_number = unpack("V", $buffer);
 
 
@@ -489,6 +527,7 @@ sub _parse_xda {
     for (my $i=1;$i<=$self->{"NUMBEROFUNITS"};$i++) {
 	my $ps=new Bio::Affymetrix::CDF::Probeset();
 	$ps->_parse_from_filehandle_bin($fh,$self->{"_PROBEMODE"});
+	$ps->{"CDF"}=$self;
 	$self->{"PROBESETS"}->{$ps->{"UNITNUMBER"}}=$ps;
     }
 }
@@ -572,9 +611,10 @@ sub _parse_unit_section {
     my $self=shift;
     shift;
     my $i=new Bio::Affymetrix::CDF::Probeset;
+    $i->CDF($self);
     my $ret=$i->_parse_from_filehandle($self->{"FH"},$self->{"_PROBEMODE"});
     
-    $i->CDF($self);
+
     
     $self->{"PROBESETS"}->{$i->original_unit_number()}=$i;
     
@@ -637,7 +677,7 @@ sub write_to_file {
     my $self=shift;
     my $filename=shift;
 
-    open CDF,">".$filename or die "Cannot open file for writing".$filename;
+    open CDF,">".$filename or croak "Cannot open file for writing ".$filename;
 
     $self->write_to_filehandle(\*CDF,@_);
 
@@ -653,10 +693,13 @@ sub write_to_file {
   Description:	Writes a CDF file to a filehandle. Takes arguments of
   the filehandle, the desired format, and the desired version of that
   format.
+
   Currently, format defaults to MAS5, and version defaults to
   GC3.0. These are the only formats the software is capable of
   producing currently. Also, this software cannot write files that
-  were read in using GCOS file format.
+  were read in using the GCOS file format. The original CDF file must
+  have been parsed in probe mode.
+
   Returntype :	none
   Exceptions : 	dies if cannot open file
   Caller     : 	general

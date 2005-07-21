@@ -45,9 +45,9 @@ Probe documentation.
 <TR><TD><B>original_probepair_number</B></TD><TD><A HREF="#POD5">Description</A></TD><TD><A HREF="#CODE6">Code</A></TD></TR>
 <TR><TD><B>original_probeset</B></TD><TD><A HREF="#POD6">Description</A></TD><TD><A HREF="#CODE7">Code</A></TD></TR>
 <TR><TD><B>probe_mismatch_base</B></TD><TD><A HREF="#POD7">Description</A></TD><TD><A HREF="#CODE8">Code</A></TD></TR>
-<TR><TD><B>probe_target_base</B></TD><TD><FONT COLOR="RED"><B>No description</B></FONT></TD><TD><A HREF="#CODE9">Code</A></TD></TR>
-<TR><TD><B>x</B></TD><TD><A HREF="#POD8">Description</A></TD><TD><A HREF="#CODE10">Code</A></TD></TR>
-<TR><TD><B>y</B></TD><TD><A HREF="#POD9">Description</A></TD><TD><A HREF="#CODE11">Code</A></TD></TR>
+<TR><TD><B>probe_target_base</B></TD><TD><A HREF="#POD8">Description</A></TD><TD><A HREF="#CODE9">Code</A></TD></TR>
+<TR><TD><B>x</B></TD><TD><A HREF="#POD9">Description</A></TD><TD><A HREF="#CODE10">Code</A></TD></TR>
+<TR><TD><B>y</B></TD><TD><A HREF="#POD10">Description</A></TD><TD><A HREF="#CODE11">Code</A></TD></TR>
 </TABLE>
 <A NAME="MethDesc"></A>
 <HR><H2>Methods description</H2>
@@ -59,7 +59,7 @@ Probe documentation.
 <pre>    Arg [0]    : none<BR>    Example    : if ($probe-&gt;is_mismatch()) { <BR>print &quot;Everybody loves mismatch probes!&quot;; <BR>}<BR>  Description: 	Utility function that returns whether this probe is a<BR>    mismatch probe or not.<BR>    Returntype : bool<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
 <TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_mismatch_position"></A><A NAME="POD3"></A><B>mismatch_position</B></TD><TD><A HREF="#CODE3">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD2">prev</A></TD><TD><A HREF="#POD4">next</A></TD></TR></TABLE>
-<pre>    Arg [1]    :  integer $position (optional)<BR>    Example    :  my $position=$probe-&gt;mismatch_position();<BR> Description: 	Get/set the postition of the mismatch base (in the<BR> 25-mer oligo. As far as the author knows, all factory Affymetrix<BR>chips have the mismatch probe in position 13).<BR>    Returntype : integer<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
+<pre>    Arg [1]    :  integer $position (optional)<BR>    Example    :  my $position=$probe-&gt;mismatch_position();<BR> Description: 	Get/set the postition of the mismatch base (in the<BR> 25-mer oligo. As far as the author knows, all factory Affymetrix<BR>chips have the mismatch probe in position 13). Only available if the<BR>    original CDF file was in MAS5 format. <BR>    Returntype : integer<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
 <TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_new"></A><A NAME="POD4"></A><B>new</B></TD><TD><A HREF="#CODE4">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD3">prev</A></TD><TD><A HREF="#POD5">next</A></TD></TR></TABLE>
 <pre>  Arg [0]    : none<BR>  Example    : my $probe=new <B>Bio::Affymetrix::CDF::Probe</B>();<BR>  Description: constructor for <B>Bio::Affymetrix::CDF::Probe</B> object. You<BR>  probably do not want to make these objects yourself, however. <BR>  Returntype : new Bio::Affmetrix::CDF object<BR>  Exceptions : none<BR>  Caller     : general<BR></pre>
@@ -70,14 +70,17 @@ Probe documentation.
 <TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_original_probeset"></A><A NAME="POD6"></A><B>original_probeset</B></TD><TD><A HREF="#CODE7">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD5">prev</A></TD><TD><A HREF="#POD7">next</A></TD></TR></TABLE>
 <pre>    Arg [0]    : none<BR>    Example    : my $name=$probe-&gt;original_probeset()<BR>  Description: 	The name of the original probeset this probe came from<BR>    Returntype : string $probesetname<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
-<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_probe_mismatch_base(2)"></A><A NAME="POD7"></A><B>probe_mismatch_base(2)</B></TD><TD><A HREF="#CODE8">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD6">prev</A></TD><TD><A HREF="#POD8">next</A></TD></TR></TABLE>
+<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_probe_mismatch_base"></A><A NAME="POD7"></A><B>probe_mismatch_base</B></TD><TD><A HREF="#CODE8">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD6">prev</A></TD><TD><A HREF="#POD8">next</A></TD></TR></TABLE>
+<pre>    Arg [1]    : char $base<BR>    Example    : my $base=$probe-&gt;probe_mismatch_base()<BR>  Description: 	Get/set the base A,C,T or G at the mismatch position.<BR>    Returntype : char $base<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
+<TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
+<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_probe_target_base"></A><A NAME="POD8"></A><B>probe_target_base</B></TD><TD><A HREF="#CODE9">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD7">prev</A></TD><TD><A HREF="#POD9">next</A></TD></TR></TABLE>
 <pre>    Arg [1]    : char $base<BR>    Example    : my $base=$probe-&gt;probe_target_base()<BR>  Description: 	Get/set what the base (A, C, T or G) would be if it is to detect for<BR>    the target sequence. Non-mismatch probes have<BR>    probe_mismatch_base() eq probe_target_base().<BR>    Returntype : char $base<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
-<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_x"></A><A NAME="POD8"></A><B>x</B></TD><TD><A HREF="#CODE10">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD7">prev</A></TD><TD><A HREF="#POD9">next</A></TD></TR></TABLE>
-<pre>    Arg [1]    :  integer $x (optional)<BR>    Example    :  my $x=$probe-&gt;x();<BR> Description: 	Get/set the y coordinate of this probe<BR>    Returntype : integer<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
+<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_x"></A><A NAME="POD9"></A><B>x</B></TD><TD><A HREF="#CODE10">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD8">prev</A></TD><TD><A HREF="#POD10">next</A></TD></TR></TABLE>
+<pre>    Arg [1]    :  integer $x (optional)<BR>    Example    :  my $x=$probe-&gt;x();<BR> Description: 	Get the x coordinate of this probe. This is now (since version 0.3) immutable.<BR>    Returntype : integer<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0" CELLSPACING="0">
-<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_y"></A><A NAME="POD9"></A><B>y</B></TD><TD><A HREF="#CODE11">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD8">prev</A></TD><TD><A HREF="#POD10">next</A></TD></TR></TABLE>
-<pre>    Arg [1]    : 	integer $y (optional)<BR>    Example    : 	my $name=$probe-&gt;cols()<BR>  Description: 	Get/set the y coordinate of this probe<BR>    Returntype : integer<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
+<TR BGCOLOR="#4492df"><TD WIDTH="200"><A NAME="_pod_y"></A><A NAME="POD10"></A><B>y</B></TD><TD><A HREF="#CODE11">code</A></TD><TD><A HREF="#TOP">top</A></TD><TD><A HREF="#POD9">prev</A></TD><TD><A HREF="#POD11">next</A></TD></TR></TABLE>
+<pre>    Arg [1]    : 	integer $y (optional)<BR>    Example    : 	my $name=$probe-&gt;cols()<BR>  Description: 	Get the y coordinate of this probe. This is now (since version 0.3) immutable.<BR>    Returntype : integer<BR>    Exceptions : none<BR>    Caller     : general<BR></pre>
 <A NAME="MethCode"></A>
 <HR><H2>Methods code</H2>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
@@ -93,7 +96,7 @@ Probe documentation.
 <TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE2"></A><B>is_mismatch</B></TD><TD><A HREF="#POD2">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE1">prev</A></TD><TD WIDTH="30"><A HREF="#CODE3">next</A></TD></TR></TABLE>
 <font color="#0000ff"><b>sub</b></font> <font color="#ff0000"><b>is_mismatch</b></font>
  {<pre>    <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$self</font>=<font color="#4169e1"><b>shift</b></font>;
-    <font color="#0000ff"><b>return</b></font> !<font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#ff8204">probe_target_base</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>eq</b></font> <font color="#1f32ff">$self</font>-&gt;<font color="#ff8204">probe_mismatch_base</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>)</b></font>;</pre>}<BR>
+    <font color="#0000ff"><b>return</b></font> <font color="#0000ff"><b>(</b></font><font color="#1f32ff">$self</font>-&gt;<font color="#ff8204">probe_target_base</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>eq</b></font> <font color="#1f32ff">$self</font>-&gt;<font color="#ff8204">probe_mismatch_base</font><font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>)</b></font><font color="#0000ff"><b>)</b></font>;</pre>}<BR>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
 <TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE3"></A><B>mismatch_position</B></TD><TD><A HREF="#POD3">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE2">prev</A></TD><TD WIDTH="30"><A HREF="#CODE4">next</A></TD></TR></TABLE>
 <font color="#0000ff"><b>sub</b></font> <font color="#ff0000"><b>mismatch_position</b></font>
@@ -142,7 +145,7 @@ Probe documentation.
     
     <font color="#0000ff"><b>return</b></font> <font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"PBASE"</font><font color="#0000ff"><b>}</b></font>;</pre>}<BR>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
-<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE9"></A><B>probe_target_base</B></TD><TD>description</TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE8">prev</A></TD><TD WIDTH="30"><A HREF="#CODE10">next</A></TD></TR></TABLE>
+<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE9"></A><B>probe_target_base</B></TD><TD><A HREF="#POD8">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE8">prev</A></TD><TD WIDTH="30"><A HREF="#CODE10">next</A></TD></TR></TABLE>
 <font color="#0000ff"><b>sub</b></font> <font color="#ff0000"><b>probe_target_base</b></font>
  {<pre>    <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$self</font>=<font color="#4169e1"><b>shift</b></font>;
     
@@ -152,23 +155,14 @@ Probe documentation.
     
     <font color="#0000ff"><b>return</b></font> <font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"TBASE"</font><font color="#0000ff"><b>}</b></font>;</pre>}<BR>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
-<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE10"></A><B>x</B></TD><TD><A HREF="#POD8">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE9">prev</A></TD><TD WIDTH="30"><A HREF="#CODE11">next</A></TD></TR></TABLE>
+<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE10"></A><B>x</B></TD><TD><A HREF="#POD9">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE9">prev</A></TD><TD WIDTH="30"><A HREF="#CODE11">next</A></TD></TR></TABLE>
 <font color="#0000ff"><b>sub</b></font> <font color="#ff0000"><b>x</b></font>
  {<pre>    <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$self</font>=<font color="#4169e1"><b>shift</b></font>;
-    
-    <font color="#0000ff"><b>if</b></font> <font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$q</font>=<font color="#4169e1"><b>shift</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
-	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"X"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$q</font>;
-    <font color="#0000ff"><b>}</b></font>
-    
     <font color="#0000ff"><b>return</b></font> <font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"X"</font><font color="#0000ff"><b>}</b></font>;</pre>}<BR>
 <TABLE BORDER="0" WIDTH="100%" CELLSPACING="0">
-<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE11"></A><B>y</B></TD><TD><A HREF="#POD9">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE10">prev</A></TD><TD WIDTH="30">next</TD></TR></TABLE>
+<TR BGCOLOR="#dcab68"><TD WIDTH="200"><A NAME="CODE11"></A><B>y</B></TD><TD><A HREF="#POD10">description</A></TD><TD WIDTH="30"><A HREF="#TOP">top</A></TD><TD WIDTH="30"><A HREF="#CODE10">prev</A></TD><TD WIDTH="30">next</TD></TR></TABLE>
 <font color="#0000ff"><b>sub</b></font> <font color="#ff0000"><b>y</b></font>
  {<pre>    <font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$self</font>=<font color="#4169e1"><b>shift</b></font>;
-    
-    <font color="#0000ff"><b>if</b></font> <font color="#0000ff"><b>(</b></font><font color="#0000ff"><b>my</b></font> <font color="#1f32ff">$q</font>=<font color="#4169e1"><b>shift</b></font><font color="#0000ff"><b>)</b></font> <font color="#0000ff"><b>{</b></font>
-	<font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"Y"</font><font color="#0000ff"><b>}</b></font>=<font color="#1f32ff">$q</font>;
-    <font color="#0000ff"><b>}</b></font>
     
     <font color="#0000ff"><b>return</b></font> <font color="#1f32ff">$self</font>-&gt;<font color="#0000ff"><b>{</b></font><font color="#007400">"Y"</font><font color="#0000ff"><b>}</b></font>;</pre>}<BR>
 <A NAME="General"></A>
